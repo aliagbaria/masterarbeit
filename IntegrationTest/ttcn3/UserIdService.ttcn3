@@ -6,7 +6,7 @@ module UserIdService {
 	const charstring AUTHORIZATION := "Authorization: Basic NOT DEFINED";
 
 	// The REST Calls
-	type record login {
+	type record Login {
 		record {
 			string username, string password
 		} body
@@ -17,29 +17,23 @@ module UserIdService {
 		encode (body) "body/JSON"
 	}
 
-	template login loginRequest := {
+	template Login loginRequest := {
 		body := { "admin@mywowi.de", "mywowi"}
 	}
 
-
-	type record loginRespone {
-		LoginResponse response optional
-	}
-	with {
-		encode "REST/postResponse"
-	}
- 
 	type record LoginResponse {
-		string body optional
+		string body optional,
+		string authorization		
 	}
 	with {
-		encode "REST/postResponse"
+		encode "REST/postResponse";
+		encode (authorization) "header/Authorization";
 	}
 
 	
 
 	type port RESTfull message {
-		out login;
+		out Login;
 		in LoginResponse;
 		in HTTPResponse;
 		map param (RESTAPIconfig config);

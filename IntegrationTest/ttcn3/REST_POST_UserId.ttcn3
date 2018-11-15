@@ -35,6 +35,40 @@ module REST_POST_UserId {
 			}
 		}
 	}
+	
+		testcase test_RESTPost_2() runs on RESTComponent system DBRestService {
+		log("Check REST/put call towards DB");
+		map(mtc:p, system:s) param (config(AUTHORIZATION));
+		p.send(loginRequest);
+		timer t;
+		t.start(5.0);
+		var HTTPResponse valHttp;
+		var LoginResponse response; // should contain the authorization header
+		alt {
+		[] p.receive(LoginResponse: {*, ?}) -> value response {
+				log("The jwt is: " & response.authorization);
+				setverdict(pass);
+			}
+		[] p
+		   .receive(HTTPResponse:
+					{
+						statusLine := {statusCode := 200, reasonPhrase := *},
+						headers := ?,
+						body := *
+					}) -> value valHttp{
+						var charstring jwt := valHttp.headers[8].val;
+						log("The jwt is:" & jwt);
+				setverdict(pass);
+				t.stop;
+			}
+		[] p.receive {
+				setverdict(fail);
+			}
+		[] t.timeout {
+				setverdict(fail);
+			}
+		}
+	}
 }
 with {
 	encode "RESTfull/json"
