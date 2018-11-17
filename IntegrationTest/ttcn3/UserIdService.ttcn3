@@ -3,6 +3,7 @@ module UserIdService {
 	import from Lib_JSON all;
 
 	const charstring BASE_URL := "http://solv116.hypoport.local:8089";
+	const charstring BASE_URL_userservice := "http://solv116.hypoport.local:8086";
 	const charstring AUTHORIZATION := "Authorization: Basic NOT DEFINED";
 
 	// The REST Calls
@@ -16,10 +17,23 @@ module UserIdService {
 		variant "path: /login";
 		encode (body) "body/JSON"
 	}
+	type record login_userservice {
+			record {
+				string email
+			} body
+		}
+		with {
+			encode "REST/post";
+			variant "path: /user/login";
+			encode (body) "body/JSON"
+		}
 
 	template login loginRequest := {
 		body := { "admin@mywowi.de", "mywowi"}
 	}
+	template login_userservice loginRequest_userservice := {
+			body := { "admin@mywowi.de"}
+		}
 
 
 	type record loginRespone {
@@ -44,6 +58,12 @@ module UserIdService {
 		in HTTPResponse;
 		map param (RESTAPIconfig config);
 	}
+	type port RESTfull_user message {
+			out login_userservice;
+			in LoginResponse;
+			in HTTPResponse;
+			map param (RESTAPIconfig config);
+		}
 
 	type record RESTAPIconfig {
 		string baseUrl, string authorization optional
@@ -52,6 +72,9 @@ module UserIdService {
 	template RESTAPIconfig config(string auth) := {
 		baseUrl := BASE_URL, authorization := auth
 	}
+	template RESTAPIconfig config_user(string auth) := {
+			baseUrl := BASE_URL_userservice, authorization := auth
+		}
 	type component RESTComponent {
 		port RESTfull p;
 	}
@@ -59,6 +82,13 @@ module UserIdService {
 	type component DBRestService {
 		port RESTfull s;
 	}
+	type component RESTComponent_userservice {
+			port RESTfull_user p;
+		}
+
+		type component DBRestService_userservice {
+			port RESTfull_user s;
+		}
 }
 with {
 	encode "RESTfull/json"

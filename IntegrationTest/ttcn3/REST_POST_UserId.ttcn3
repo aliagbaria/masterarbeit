@@ -4,37 +4,77 @@ module REST_POST_UserId {
 	import from UserIdService all;
 
 
-	testcase test_RESTPut_1() runs on RESTComponent system DBRestService {
-		log("Check REST/put call towards DB");
-		map(mtc:p, system:s) param (config(AUTHORIZATION));
-		p.send(loginRequest);
-		timer t;
-		t.start(5.0);
-		var HTTPResponse valHttp;
-		alt {
-		[] p.receive(LoginResponse:*) {
-				setverdict(pass);
-			}
-		[] p
-		   .receive(HTTPResponse:
-					{
-						statusLine := {statusCode := 200, reasonPhrase := *},
-						headers := ?,
-						body := *
-					}) -> value valHttp{
-						var charstring jwt := valHttp.headers[8].val;
-						log("The jwt is:" & jwt);
-				setverdict(pass);
-				t.stop;
-			}
-		[] p.receive {
-				setverdict(fail);
-			}
-		[] t.timeout {
-				setverdict(fail);
+
+	group zusammen {
+        
+		   
+		testcase test_RESTPut_1() runs on RESTComponent system DBRestService {
+			log("Check REST/put call towards DB");
+			map(mtc:p, system:s) param (config(AUTHORIZATION));
+			p.send(loginRequest);
+			timer t;
+			t.start(5.0);
+			var HTTPResponse valHttp;
+			alt {
+			[] p.receive(LoginResponse:*) {
+					setverdict(pass);
+				}
+			[] p
+			   .receive(HTTPResponse:
+						{
+							statusLine := {statusCode := 200, reasonPhrase := *},
+							headers := ?,
+							body := *
+						}) -> value valHttp{
+							var charstring jwt := valHttp.headers[8].val;
+							log("The jwt is:" & jwt);
+					setverdict(pass);
+					t.stop;
+				}
+			[] p.receive {
+					setverdict(fail);
+				}
+			[] t.timeout {
+					setverdict(fail);
+				}
 			}
 		}
-	}
+			testcase test_RESTPut_2() runs on RESTComponent_userservice system DBRestService_userservice {
+			log("Check REST/put call towards DB");
+			map(mtc:p, system:s) param (config_user(AUTHORIZATION));
+			p.send(loginRequest_userservice);
+			timer t;
+			t.start(5.0);
+			var HTTPResponse valHttp;
+			alt {
+			[] p.receive(LoginResponse:*) {
+					setverdict(pass);
+				}
+			[] p
+			   .receive(HTTPResponse:
+						{
+							statusLine := {statusCode := 200, reasonPhrase := *},
+							headers := ?,
+							body := ?
+						
+						}) -> value valHttp{
+							var charstring id := valHttp.body.messageBodyTxt;
+							log("The userId is:" & id);
+					setverdict(pass);
+					t.stop;
+				}
+			[] p.receive {
+					setverdict(fail);
+				}
+			[] t.timeout {
+					setverdict(fail);
+				}
+			}
+		}
+        
+		  
+		   }
+	
 }
 with {
 	encode "RESTfull/json"
