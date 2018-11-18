@@ -4,6 +4,7 @@ module UserIdService {
 
 	const charstring BASE_URL := "http://solv116.hypoport.local:8089";
 	const charstring BASE_URL_userservice := "http://solv116.hypoport.local:8086";
+	const charstring BASE_URL_authservice := "http://solv116.hypoport.local:8085";
 	const charstring AUTHORIZATION := "Authorization: Basic NOT DEFINED";
 
 	// The REST Calls
@@ -17,7 +18,7 @@ module UserIdService {
 		variant "path: /login";
 		encode (body) "body/JSON"
 	}
-	type record login_userservice {
+	type record Login_userservice {
 			record {
 				string email
 			} body
@@ -27,13 +28,26 @@ module UserIdService {
 			variant "path: /user/login";
 			encode (body) "body/JSON"
 		}
+	type record Login_authservice {
+				record {
+					string password, integer userId
+				} body
+			}
+			with {
+				encode "REST/post";
+				variant "path: /gateway-permission/auth/login";
+				encode (body) "body/JSON"
+			}
 
 	template Login loginRequest := {
 		body := { "admin@mywowi.de", "mywowi"}
 	}
-	template login_userservice loginRequest_userservice := {
+	template Login_userservice loginRequest_userservice := {
 			body := { "admin@mywowi.de"}
 		}
+	template Login_authservice loginRequest_authservice := {
+		body := { "mywowi",1}
+			}
 
 	type record LoginResponse {
 		string body optional,
@@ -53,11 +67,17 @@ module UserIdService {
 		map param (RESTAPIconfig config);
 	}
 	type port RESTfull_user message {
-			out login_userservice;
-			in LoginResponse;
-			in HTTPResponse;
-			map param (RESTAPIconfig config);
-		}
+		out Login_userservice;
+		in LoginResponse;
+		in HTTPResponse;
+		map param (RESTAPIconfig config);
+	}
+	type port RESTfull_auth message {
+		out Login_authservice;
+		in LoginResponse;
+		in HTTPResponse;
+		map param (RESTAPIconfig config);
+	}
 
 	type record RESTAPIconfig {
 		string baseUrl, string authorization optional
@@ -69,6 +89,9 @@ module UserIdService {
 	template RESTAPIconfig config_user(string auth) := {
 			baseUrl := BASE_URL_userservice, authorization := auth
 		}
+	template RESTAPIconfig config_auth(string auth) := {
+				baseUrl := BASE_URL_authservice, authorization := auth
+			}
 	type component RESTComponent {
 		port RESTfull p;
 	}
@@ -80,8 +103,15 @@ module UserIdService {
 			port RESTfull_user p;
 		}
 
-		type component DBRestService_userservice {
+	type component DBRestService_userservice {
 			port RESTfull_user s;
+		}
+	type component RESTComponent_authservice {
+			port RESTfull_auth p;
+		}
+
+	type component DBRestService_authservice {
+			port RESTfull_auth s;
 		}
 }
 with {

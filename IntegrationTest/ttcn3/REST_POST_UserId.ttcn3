@@ -5,10 +5,10 @@ module REST_POST_UserId {
 
 
 
-	group zusammen {
+	group integration {
         
 		   
-		testcase test_RESTPut_1() runs on RESTComponent system DBRestService {
+		testcase test_RESTPost_LoginGateway() runs on RESTComponent system DBRestService {
 			log("Check REST/put call towards DB");
 			map(mtc:p, system:s) param (config(AUTHORIZATION));
 			p.send(loginRequest);
@@ -39,7 +39,7 @@ module REST_POST_UserId {
 				}
 			}
 		}
-			testcase test_RESTPut_2() runs on RESTComponent_userservice system DBRestService_userservice {
+			testcase test_RESTPost_userservice() runs on RESTComponent_userservice system DBRestService_userservice {
 			log("Check REST/put call towards DB");
 			map(mtc:p, system:s) param (config_user(AUTHORIZATION));
 			p.send(loginRequest_userservice);
@@ -71,6 +71,38 @@ module REST_POST_UserId {
 				}
 			}
 		}
+		testcase test_RESTPost_authservice() runs on RESTComponent_authservice system DBRestService_authservice {
+					log("Check REST/put call towards DB");
+					map(mtc:p, system:s) param (config_auth(AUTHORIZATION));
+					p.send(loginRequest_authservice);
+					timer t;
+					t.start(5.0);
+					var HTTPResponse valHttp;
+					alt {
+					[] p.receive(LoginResponse:*) {
+							setverdict(pass);
+						}
+					[] p
+					   .receive(HTTPResponse:
+								{
+									statusLine := {statusCode := 200, reasonPhrase := *},
+									headers := ?,
+									body := ?
+						
+								}) -> value valHttp{
+									var charstring answer := valHttp.body.messageBodyTxt;
+									log("The answer is:" & answer);
+							setverdict(pass);
+							t.stop;
+						}
+					[] p.receive {
+							setverdict(fail);
+						}
+					[] t.timeout {
+							setverdict(fail);
+						}
+					}
+				}
         
 		  
 		   }
