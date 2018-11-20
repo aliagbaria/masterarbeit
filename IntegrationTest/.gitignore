@@ -1,0 +1,7 @@
+# Package Files #
+*.jar
+*.clf
+settings\.clfcache\
+settings/.clfcache/
+
+
