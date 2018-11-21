@@ -16,7 +16,7 @@ module REST_POST_UserId {
 			t.start(5.0);
 			var HTTPResponse valHttp;
 			alt {
-			[] p.receive(LoginResponse:*) {
+			[] p.receive(LoginResponse:{ body := omit, authorization := ?}) {
 					setverdict(pass);
 				}
 			[] p
@@ -47,7 +47,7 @@ module REST_POST_UserId {
 			t.start(5.0);
 			var HTTPResponse valHttp;
 			alt {
-			[] p.receive(LoginResponse:*) {
+			[] p.receive(LoginResponse_user:{ body := ?, authorization := omit}) {
 					setverdict(pass);
 				}
 			[] p
@@ -79,7 +79,7 @@ module REST_POST_UserId {
 					t.start(5.0);
 					var HTTPResponse valHttp;
 					alt {
-					[] p.receive(LoginResponse:*) {
+					[] p.receive(LoginResponse_auth:{ body := ?, authorization := omit}) {
 							setverdict(pass);
 						}
 					[] p

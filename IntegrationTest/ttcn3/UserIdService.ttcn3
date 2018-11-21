@@ -51,14 +51,34 @@ module UserIdService {
 
 	type record LoginResponse {
 		string body optional,
-		string authorization		
+		string authorization 		
 	}
 	with {
 		encode "REST/postResponse";
+		encode (body) "body/JSON";
 		encode (authorization) "header/Authorization";
 	}
 
 	
+	type record LoginResponse_user {
+		string body,
+		string authorization optional 		
+	}
+	with {
+		encode "REST/postResponse";
+		encode (body) "body/JSON";
+		encode (authorization) "header/Authorization";
+	}
+	
+	type record LoginResponse_auth {
+		string body,
+		string authorization optional		
+	}
+	with {
+		encode "REST/postResponse";
+		encode (body) "body/JSON";
+		encode (authorization) "header/Authorization";
+	}
 
 	type port RESTfull message {
 		out Login;
@@ -68,13 +88,13 @@ module UserIdService {
 	}
 	type port RESTfull_user message {
 		out Login_userservice;
-		in LoginResponse;
+		in LoginResponse_user;
 		in HTTPResponse;
 		map param (RESTAPIconfig config);
 	}
 	type port RESTfull_auth message {
 		out Login_authservice;
-		in LoginResponse;
+		in LoginResponse_auth;
 		in HTTPResponse;
 		map param (RESTAPIconfig config);
 	}
