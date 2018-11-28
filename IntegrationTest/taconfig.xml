@@ -10,8 +10,11 @@
     <plugin id="de.vassiliougioles.ttcn.ttwb.codec.RJPlugin">
       <parameter id="class" value="de.vassiliougioles.ttcn.ttwb.port.RESTPortPlugin"/>
     </plugin>
-    <parameter id="xtri" value="true"/>
-    <parameter id="portType" value="RESTfull"/>
+    <parameter id="xtri" value="false"/>
+    <parameter id="rt" value="false"/>
     <parameter id="default" value="true"/>
+    <parameter id="portType" value="UserIdService.RESTfull"/>
+    <parameter id="portType" value="UserIdService.RESTfull_auth"/>
+    <parameter id="portType" value="UserIdService.RESTfull_user"/>
   </port>
 </testadapter>

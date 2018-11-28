@@ -26,8 +26,8 @@ module REST_POST_UserId {
 							headers := ?,
 							body := *
 						}) -> value valHttp{
-							var charstring jwt := valHttp.headers[8].val;
-							log("The jwt is:" & jwt);
+						var charstring jwt := valHttp.headers[8].val;
+						//	log("The jwt is:" & jwt);
 					setverdict(pass);
 					t.stop;
 				}
