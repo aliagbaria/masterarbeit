@@ -2,8 +2,10 @@ module REST_POST_UserId {
 	import from Lib_Http all;
 
 	import from UserIdService all;
+	import from Lib_ServiceManagement all;
+	import from Templates_Ausfallszeanrien all;
 
-
+		
 
 	group integration {
         
@@ -39,6 +41,145 @@ module REST_POST_UserId {
 				}
 			}
 		}
+		testcase test_RESTPost_LoginGateway_ausfall_userservice() runs on RESTComponent system DBRestService {
+					log("Check REST/put call towards DB");
+					log(stopService(Userservice_stop));
+					//log(getServiceStatus(Userservice_status));
+					map(mtc:p, system:s) param (config(AUTHORIZATION));
+					p.send(loginRequest);
+					timer t;
+					t.start(5.0);
+					var HTTPResponse valHttp;
+					alt {
+					[] p.receive(LoginResponse:{ body := omit, authorization := ?}) {
+							setverdict(pass);
+						}
+					[] p
+					   .receive(HTTPResponse:
+								{
+									statusLine := {statusCode := 500, reasonPhrase := *},
+									headers := ?,
+									body := *
+								}) -> value valHttp{
+								var charstring jwt := valHttp.headers[8].val;
+								//	log("The jwt is:" & jwt);
+							setverdict(pass);
+							t.stop;
+						}
+					[] p.receive {
+							setverdict(fail);
+						}
+					[] t.timeout {
+							setverdict(fail);
+						}
+					}
+					// write a Methode to start the service again
+					log(startService(Userservice_start));
+				}
+		testcase test_RESTPost_LoginGateway_ausfall_authservice() runs on RESTComponent system DBRestService {
+							log("Check REST/put call towards DB");
+							log(stopService(Authservice_stop));
+							//log(getServiceStatus(Userservice_status));
+							map(mtc:p, system:s) param (config(AUTHORIZATION));
+							p.send(loginRequest);
+							timer t;
+							t.start(5.0);
+							var HTTPResponse valHttp;
+							alt {
+							[] p.receive(LoginResponse:{ body := omit, authorization := ?}) {
+									setverdict(pass);
+								}
+							[] p
+							   .receive(HTTPResponse:
+										{
+											statusLine := {statusCode := 500, reasonPhrase := *},
+											headers := ?,
+											body := *
+										}) -> value valHttp{
+										var charstring jwt := valHttp.headers[8].val;
+										//	log("The jwt is:" & jwt);
+									setverdict(pass);
+									t.stop;
+								}
+							[] p.receive {
+									setverdict(fail);
+								}
+							[] t.timeout {
+									setverdict(fail);
+								}
+							}
+							//write a Methode to start the service again
+						}
+		
+		testcase test_RESTPost_LoginGateway_wiederkommen_userservice() runs on RESTComponent system DBRestService {
+								log("Check REST/put call towards DB");
+								log(startService(Userservice_start));
+								//log(getServiceStatus(Userservice_status));
+								map(mtc:p, system:s) param (config(AUTHORIZATION));
+								p.send(loginRequest);
+								timer t;
+								t.start(5.0);
+								var HTTPResponse valHttp;
+								alt {
+								[] p.receive(LoginResponse:{ body := omit, authorization := ?}) {
+										setverdict(pass);
+									}
+								[] p
+								   .receive(HTTPResponse:
+											{
+												statusLine := {statusCode := 200, reasonPhrase := *},
+												headers := ?,
+												body := *
+											}) -> value valHttp{
+											var charstring jwt := valHttp.headers[8].val;
+											//	log("The jwt is:" & jwt);
+										setverdict(pass);
+										t.stop;
+									}
+								[] p.receive {
+										setverdict(fail);
+									}
+								[] t.timeout {
+										setverdict(fail);
+									}
+								}
+								//write a Methode to start the service again
+							}
+							
+		testcase test_RESTPost_LoginGateway_wiederkommen_authservice() runs on RESTComponent system DBRestService {
+										log("Check REST/put call towards DB");
+										log(startService(Authservice_start));
+										//log(getServiceStatus(Userservice_status));
+										map(mtc:p, system:s) param (config(AUTHORIZATION));
+										p.send(loginRequest);
+										timer t;
+										t.start(5.0);
+										var HTTPResponse valHttp;
+										alt {
+										[] p.receive(LoginResponse:{ body := omit, authorization := ?}) {
+												setverdict(pass);
+											}
+										[] p
+										   .receive(HTTPResponse:
+													{
+														statusLine := {statusCode := 200, reasonPhrase := *},
+														headers := ?,
+														body := *
+													}) -> value valHttp{
+													var charstring jwt := valHttp.headers[8].val;
+													//	log("The jwt is:" & jwt);
+												setverdict(pass);
+												t.stop;
+											}
+										[] p.receive {
+												setverdict(fail);
+											}
+										[] t.timeout {
+												setverdict(fail);
+											}
+										}
+										//write a Methode to start the service again
+									}
 			testcase test_RESTPost_userservice() runs on RESTComponent_userservice system DBRestService_userservice {
 			log("Check REST/put call towards DB");
 			map(mtc:p, system:s) param (config_user(AUTHORIZATION));

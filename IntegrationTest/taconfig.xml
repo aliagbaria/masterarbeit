@@ -16,5 +16,25 @@
     <parameter id="portType" value="UserIdService.RESTfull"/>
     <parameter id="portType" value="UserIdService.RESTfull_auth"/>
     <parameter id="portType" value="UserIdService.RESTfull_user"/>
+    <extfunc>
+    <plugin id="com.testingtech.ttcn.rt.tri.ttlibrary">
+      <parameter id="class" value="com.testingtech.ttcn.rt.tri.ttlibrary.extfct.TTlibraryExtFuncProvider"/>
+    </plugin>
+    <parameter id="taParams">
+      <parameter id="CLEAR_VARIABLE_STORAGE_ON_TC_START">
+        <value>
+          <Values:boolean xmlns:Values="Values.xsd" type="boolean">
+            <Values:value>false</Values:value>
+          </Values:boolean>
+        </value>
+      </parameter>
+    </parameter>
+  </extfunc>
+  <extfunc>
+    <plugin id="de.vassiliougioles.ttcn.ttwb.functions.ServiceMgmtPlugin">
+      <parameter id="class" value="de.vassiliougioles.ttcn.ttwb.functions.ServiceMgmtPlugin"/>
+    </plugin>
+  </extfunc>
   </port>
 </testadapter>
+
