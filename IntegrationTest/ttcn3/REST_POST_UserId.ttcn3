@@ -43,7 +43,7 @@ module REST_POST_UserId {
 		}
 		testcase test_RESTPost_LoginGateway_ausfall_userservice() runs on RESTComponent system DBRestService {
 					log("Check REST/put call towards DB");
-					log(stopService(Userservice_stop));
+					//log(stopService(Userservice_stop));
 					//log(getServiceStatus(Userservice_status));
 					map(mtc:p, system:s) param (config(AUTHORIZATION));
 					p.send(loginRequest);
@@ -109,11 +109,12 @@ module REST_POST_UserId {
 								}
 							}
 							//write a Methode to start the service again
+							log(startService(Authservice_start));
 						}
 		
 		testcase test_RESTPost_LoginGateway_wiederkommen_userservice() runs on RESTComponent system DBRestService {
 								log("Check REST/put call towards DB");
-								log(startService(Userservice_start));
+								//log(startService(Userservice_start));
 								//log(getServiceStatus(Userservice_status));
 								map(mtc:p, system:s) param (config(AUTHORIZATION));
 								p.send(loginRequest);
