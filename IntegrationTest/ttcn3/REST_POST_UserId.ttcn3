@@ -41,10 +41,10 @@ module REST_POST_UserId {
 				}
 			}
 		}
-		testcase test_RESTPost_LoginGateway_invalid_input() runs on RESTComponent system DBRestService {
+		testcase test_RESTPost_LoginGateway_invalid_input_user() runs on RESTComponent system DBRestService {
 					log("Check REST/put call towards DB");
 					map(mtc:p, system:s) param (config(AUTHORIZATION));
-					p.send(loginRequest_invalid);
+					p.send(loginRequest_invalid_user);
 					timer t;
 					t.start(5.0);
 					var HTTPResponse valHttp;
@@ -72,6 +72,72 @@ module REST_POST_UserId {
 						}
 					}
 				}
+		testcase test_RESTPost_LoginGateway_invalid_input_auth() runs on RESTComponent system DBRestService {
+							log("Check REST/put call towards DB");
+							map(mtc:p, system:s) param (config(AUTHORIZATION));
+							p.send(loginRequest_invalid_pass_auth);
+							timer t;
+							t.start(5.0);
+							var HTTPResponse valHttp;
+							alt {
+							[] p.receive(LoginResponse:{ body := omit, authorization := ?}) {
+									setverdict(pass);
+								}
+							[] p
+							   .receive(HTTPResponse:
+										{
+											statusLine := {statusCode := 200, reasonPhrase := *},
+											headers := ?,
+											body := *
+										}) -> value valHttp{
+										var charstring jwt := valHttp.headers[8].val;
+										//	log("The jwt is:" & jwt);
+									setverdict(pass);
+									t.stop;
+								}
+							[] p.receive {
+									setverdict(fail);
+								}
+							[] t.timeout {
+									setverdict(pass);
+								}
+							}
+						}
+		testcase test_RESTPost_LoginGateway_ausfall_loginGateway() runs on RESTComponent system DBRestService {
+							log("Check REST/put call towards DB");
+							//log(stopService(LoginGW_stop));
+							//log(getServiceStatus(Userservice_status));
+							map(mtc:p, system:s) param (config(AUTHORIZATION));
+							p.send(loginRequest);
+							timer t;
+							t.start(5.0);
+							var HTTPResponse valHttp;
+							alt {
+							[] p.receive(LoginResponse:{ body := omit, authorization := ?}) {
+									setverdict(pass);
+								}
+							[] p
+							   .receive(HTTPResponse:
+										{
+											statusLine := {statusCode := 500, reasonPhrase := *},
+											headers := ?,
+											body := *
+										}) -> value valHttp{
+										var charstring jwt := valHttp.headers[8].val;
+										//	log("The jwt is:" & jwt);
+									setverdict(pass);
+									t.stop;
+								}
+							[] p.receive {
+									setverdict(fail);
+								}
+							[] t.timeout {
+									setverdict(fail);
+								}
+							}
+							// write a Methode to start the service again
+							log(startService(Userservice_start));
+						}
 		testcase test_RESTPost_LoginGateway_ausfall_userservice() runs on RESTComponent system DBRestService {
 					log("Check REST/put call towards DB");
 					//log(stopService(Userservice_stop));
@@ -142,6 +208,40 @@ module REST_POST_UserId {
 							//write a Methode to start the service again
 							log(startService(Authservice_start));
 						}
+		testcase test_RESTPost_LoginGateway_wiederkommen_LoginGateway() runs on RESTComponent system DBRestService {
+										log("Check REST/put call towards DB");
+										//log(startService(LoginGW_start));
+										//log(getServiceStatus(Userservice_status));
+										map(mtc:p, system:s) param (config(AUTHORIZATION));
+										p.send(loginRequest);
+										timer t;
+										t.start(5.0);
+										var HTTPResponse valHttp;
+										alt {
+										[] p.receive(LoginResponse:{ body := omit, authorization := ?}) {
+												setverdict(pass);
+											}
+										[] p
+										   .receive(HTTPResponse:
+													{
+														statusLine := {statusCode := 200, reasonPhrase := *},
+														headers := ?,
+														body := *
+													}) -> value valHttp{
+													var charstring jwt := valHttp.headers[8].val;
+													//	log("The jwt is:" & jwt);
+												setverdict(pass);
+												t.stop;
+											}
+										[] p.receive {
+												setverdict(fail);
+											}
+										[] t.timeout {
+												setverdict(fail);
+											}
+										}
+										//write a Methode to start the service again
+									}
 		
 		testcase test_RESTPost_LoginGateway_wiederkommen_userservice() runs on RESTComponent system DBRestService {
 								log("Check REST/put call towards DB");

@@ -42,9 +42,12 @@ module UserIdService {
 	template Login loginRequest := {
 		body := { "admin@mywowi.de", "mywowi"}
 	}
-	template Login loginRequest_invalid := {
-			body := { "invalid@mywowi.de", "invalid"}
+	template Login loginRequest_invalid_user := {
+			body := { "invalid@mywowi.de", "mywowi"}
 		}
+	template Login loginRequest_invalid_pass_auth := {
+				body := { "admin@mywowi.de", "invalid"}
+			}
 	template Login_userservice loginRequest_userservice := {
 			body := { "admin@mywowi.de"}
 		}
