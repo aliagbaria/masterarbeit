@@ -5,7 +5,7 @@ module UserIdService {
 	const charstring BASE_URL := "http://solv116.hypoport.local:8089";
 	const charstring BASE_URL_userservice := "http://solv116.hypoport.local:8086";
 	const charstring BASE_URL_authservice := "http://solv116.hypoport.local:8085";
-	const charstring AUTHORIZATION := "Authorization: Basic NOT DEFINED";
+	const charstring AUTHORIZATION := "Basic NOT DEFINED";
 
 	// The REST Calls
 	type record Login {

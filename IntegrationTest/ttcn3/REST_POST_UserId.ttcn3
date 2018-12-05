@@ -11,7 +11,7 @@ module REST_POST_UserId {
         
 		   
 		testcase test_RESTPost_LoginGateway() runs on RESTComponent system DBRestService {
-			log("Check REST/put call towards DB");
+			
 			map(mtc:p, system:s) param (config(AUTHORIZATION));
 			p.send(loginRequest);
 			timer t;
@@ -42,7 +42,7 @@ module REST_POST_UserId {
 			}
 		}
 		testcase test_RESTPost_LoginGateway_invalid_input_user() runs on RESTComponent system DBRestService {
-					log("Check REST/put call towards DB");
+					
 					map(mtc:p, system:s) param (config(AUTHORIZATION));
 					p.send(loginRequest_invalid_user);
 					timer t;
@@ -55,7 +55,7 @@ module REST_POST_UserId {
 					[] p
 					   .receive(HTTPResponse:
 								{
-									statusLine := {statusCode := 200, reasonPhrase := *},
+									statusLine := {statusCode := 401, reasonPhrase := *},
 									headers := ?,
 									body := *
 								}) -> value valHttp{
@@ -68,12 +68,12 @@ module REST_POST_UserId {
 							setverdict(fail);
 						}
 					[] t.timeout {
-							setverdict(pass);
+							setverdict(fail);
 						}
 					}
 				}
 		testcase test_RESTPost_LoginGateway_invalid_input_auth() runs on RESTComponent system DBRestService {
-							log("Check REST/put call towards DB");
+							
 							map(mtc:p, system:s) param (config(AUTHORIZATION));
 							p.send(loginRequest_invalid_pass_auth);
 							timer t;
@@ -86,7 +86,7 @@ module REST_POST_UserId {
 							[] p
 							   .receive(HTTPResponse:
 										{
-											statusLine := {statusCode := 200, reasonPhrase := *},
+											statusLine := {statusCode := 401, reasonPhrase := *},
 											headers := ?,
 											body := *
 										}) -> value valHttp{
@@ -104,8 +104,8 @@ module REST_POST_UserId {
 							}
 						}
 		testcase test_RESTPost_LoginGateway_ausfall_loginGateway() runs on RESTComponent system DBRestService {
-							log("Check REST/put call towards DB");
-							//log(stopService(LoginGW_stop));
+							
+							log(stopService(LoginGW));
 							//log(getServiceStatus(Userservice_status));
 							map(mtc:p, system:s) param (config(AUTHORIZATION));
 							p.send(loginRequest);
@@ -132,15 +132,15 @@ module REST_POST_UserId {
 									setverdict(fail);
 								}
 							[] t.timeout {
-									setverdict(fail);
+									setverdict(pass);
 								}
 							}
 							// write a Methode to start the service again
-							log(startService(Userservice_start));
+							log(startService(LoginGW));
 						}
 		testcase test_RESTPost_LoginGateway_ausfall_userservice() runs on RESTComponent system DBRestService {
 					log("Check REST/put call towards DB");
-					//log(stopService(Userservice_stop));
+					log(stopService(Userservice));
 					//log(getServiceStatus(Userservice_status));
 					map(mtc:p, system:s) param (config(AUTHORIZATION));
 					p.send(loginRequest);
@@ -171,11 +171,11 @@ module REST_POST_UserId {
 						}
 					}
 					// write a Methode to start the service again
-					log(startService(Userservice_start));
+					log(startService(Userservice));
 				}
 		testcase test_RESTPost_LoginGateway_ausfall_authservice() runs on RESTComponent system DBRestService {
 							log("Check REST/put call towards DB");
-							log(stopService(Authservice_stop));
+							log(stopService(Authservice));
 							//log(getServiceStatus(Userservice_status));
 							map(mtc:p, system:s) param (config(AUTHORIZATION));
 							p.send(loginRequest);
@@ -206,11 +206,11 @@ module REST_POST_UserId {
 								}
 							}
 							//write a Methode to start the service again
-							log(startService(Authservice_start));
+							log(startService(Authservice));
 						}
 		testcase test_RESTPost_LoginGateway_wiederkommen_LoginGateway() runs on RESTComponent system DBRestService {
 										log("Check REST/put call towards DB");
-										//log(startService(LoginGW_start));
+										log(startService(LoginGW));
 										//log(getServiceStatus(Userservice_status));
 										map(mtc:p, system:s) param (config(AUTHORIZATION));
 										p.send(loginRequest);
@@ -240,12 +240,12 @@ module REST_POST_UserId {
 												setverdict(fail);
 											}
 										}
-										//write a Methode to start the service again
+										
 									}
 		
 		testcase test_RESTPost_LoginGateway_wiederkommen_userservice() runs on RESTComponent system DBRestService {
 								log("Check REST/put call towards DB");
-								//log(startService(Userservice_start));
+								log(startService(Userservice));
 								//log(getServiceStatus(Userservice_status));
 								map(mtc:p, system:s) param (config(AUTHORIZATION));
 								p.send(loginRequest);
@@ -275,13 +275,13 @@ module REST_POST_UserId {
 										setverdict(fail);
 									}
 								}
-								//write a Methode to start the service again
+								
 							}
 							
 		testcase test_RESTPost_LoginGateway_wiederkommen_authservice() runs on RESTComponent system DBRestService {
 										log("Check REST/put call towards DB");
-										log(startService(Authservice_start));
-										//log(getServiceStatus(Userservice_status));
+										log(startService(Authservice));
+								
 										map(mtc:p, system:s) param (config(AUTHORIZATION));
 										p.send(loginRequest);
 										timer t;
