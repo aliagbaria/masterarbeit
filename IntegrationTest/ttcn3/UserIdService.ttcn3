@@ -52,12 +52,12 @@ module UserIdService {
 			body := { "admin@mywowi.de"}
 		}
 	template Login_authservice loginRequest_authservice := {
-		body := { "mywowi",2}
+		body := { "mywowi",1}
 			}
 
 	type record LoginResponse {
 		string body optional,
-		string authorization 		
+		string authorization optional 		
 	}
 	with {
 		encode "REST/postResponse";
