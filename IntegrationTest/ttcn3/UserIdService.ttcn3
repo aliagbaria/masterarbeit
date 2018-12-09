@@ -122,21 +122,21 @@ module UserIdService {
 		port RESTfull p;
 	}
 
-	type component DBRestService {
+	type component LoginRestService {
 		port RESTfull s;
 	}
 	type component RESTComponent_userservice {
 			port RESTfull_user p;
 		}
 
-	type component DBRestService_userservice {
+	type component LoginRestService_userservice {
 			port RESTfull_user s;
 		}
 	type component RESTComponent_authservice {
 			port RESTfull_auth p;
 		}
 
-	type component DBRestService_authservice {
+	type component LoginRestService_authservice {
 			port RESTfull_auth s;
 		}
 }
