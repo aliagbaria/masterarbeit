@@ -5,16 +5,23 @@ module REST_POST_UserId {
 	import from Lib_ServiceManagement all;
 	import from Templates_Ausfallszeanrien all;
 
-		
+	/* ** Wichtig: um die Testfälle starten zu können, muss eine direkte Verbindung oder eine VPN-Verbindung mit dem entsprechenden Server geben,
+			 * weil, die die Post-Requests auch einen lokalen Server im Unternehmen zugreifen. Die Ausfallszenarien der Services
+			 * brauchen diese Verbindung, damit sie über SSH-Session laufen können, was an sich im Hintergrund passiert.
+			 */
 
-	
-        
+	/*Bei diesem Testfall wird der Status aller Services abgefragt. 
+			 * Sollten alle Serivces erreichbar sein, wird der Test erfolgreich abgeschlossen.
+			*/
+        //	Dabei wird die externe Methode getServiceStatus aufgerufen, um den Status der Services abzufragen.		
 		testcase status_services() runs on RESTComponent {
 				var charstring serviceStat_logingateway := getServiceStatus(LoginGW);
 				var charstring serviceStat_authservice := getServiceStatus(Authservice);
 				var charstring serviceStat_userservice := getServiceStatus(Userservice);
 				const charstring antwort:= "Running";
-		
+				timer t_Delay := 5.0; 
+				t_Delay.start;
+				t_Delay.timeout;
 				log("LoginGateway is " & serviceStat_logingateway);
 				log("AuthService is " & serviceStat_authservice);
 				log("UserService is " & serviceStat_userservice);
@@ -30,8 +37,22 @@ module REST_POST_UserId {
 				
 			}
 		   
+		   
+		   /*
+		    *Dieser Testfall testet die Identität der Services, indem das Login-
+			Gateway mit den richtigen Credentials angesprochen wird. Im Response wird HTTPStatuscode
+			200 erwartet. Wenn sowohl die Credentials richtig als auch alle Services
+			erreichbar sind, muss dann das Zusammenspiel der Services funktionieren. 
+			*/
+		   
 		testcase test_RESTPost_LoginGateway() runs on RESTComponent system LoginRestService {
 			
+			/*
+			Hierbei spricht das Login-Gateway den Userservice mit einem validen Benutzernamen an und als Antwort
+			erwartet er eine User-Id. Diese User-Id wird mit dem richtigen Passwort dann an Authservice
+			gesendet, der dann die Richtigkeit dieser Daten testet. In diesem Fall soll er mit
+			ogin Ok antworten und das ergibt am Ende ein Response mit Statuscode 200.
+						*/
 			map(mtc:p, system:s) param (config(AUTHORIZATION));
 			p.send(loginRequest);
 			timer t;
@@ -62,8 +83,24 @@ module REST_POST_UserId {
 		}
 		
 	
+	/*
+	 * 
+	 * 	Im dritten und vierten Testfall geht es darum, die Services bei unerwarteten oder fehlerhaften
+		Eingaben zu testen. Anbei wird der Testfall einmal mit einem invaliden Benutzername
+		oder einem invaliden Passwort gestartet.
+		
+	 */
 		testcase test_RESTPost_LoginGateway_invalid_input_user() runs on RESTComponent system LoginRestService {
-					
+			
+					/* Hier wird ein falscher Beutzername verwendet, um den Userservice explizit zu testen
+					 * 	Dabei ist die Reaktion des
+						Userservices interessant, weil er basierend auf diese falsche Eingabe eine User-Id an Login-
+						Gateway schicken muss. In der Regel wird eine User-Id=0 geschickt, falls der eingegebene
+						Benutzername nicht vorhanden bzw. nicht richtig ist. Das soll demnach dazu führen,
+						dass am Ende ein Response mit Http-Statuscode 401 zurückkommt und das Login soll
+						folglich scheitern
+					 * 
+					 */
 					map(mtc:p, system:s) param (config(AUTHORIZATION));
 					p.send(loginRequest_invalid_user);
 					timer t;
@@ -92,6 +129,18 @@ module REST_POST_UserId {
 						}
 					}
 				}
+				
+				/*
+				 * Da gilt das gleiche Szenario bis
+					auf einen kleinen Unterschied wie im dritten Testfall gemacht. Der Unterschied besteht
+					darin, dass dieses Mal ein falsches Passwort aber mit einem richtigen Benutzernamen
+					übermittelt wird. Dazu ist in dem Szenario Authservice betroffen, weil er die Aufgabe der
+					Kontrolle vom Passwort übernimmt. Darüber hinaus wird bei diesem Szenario erwartet,
+					dass das Login-Gateway einwandfrei und normal mit dem Userservice kommuniziert. Erst
+					bei der Anfrage vom Login-Gateway an Authservice wird es interessant, da an der Stelle
+					eine richtige User-Id mit einem fehlerhaften Passwort geschickt werden. Als Ergebnis soll
+					Login-failed und HTTP-Statuscode 401 zurückkommen.
+				 */
 		testcase test_RESTPost_LoginGateway_invalid_input_auth() runs on RESTComponent system LoginRestService {
 							
 							map(mtc:p, system:s) param (config(AUTHORIZATION));

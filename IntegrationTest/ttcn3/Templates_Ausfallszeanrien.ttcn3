@@ -4,11 +4,30 @@ module Templates_Ausfallszeanrien {
 		import from Lib_ServiceManagement all;
 		const charstring fileName := "H:\\ssh/id_rsa";
 	
-
+		/* ** Wichtig: um die Testfälle muss eine direkte Verbindung oder eine VPN-Verbindung mit dem entsprechenden Server geben,
+		 * weil, die die Post-Requests auch einen lokalen Server im Unternehmen zugreifen. Die Ausfallszenarien der Services
+		 * brauchen diese Verbindung, damit sie über SSH-Session laufen können, was an sich im Hintergrund passiert.
+		 */
+			
 		
-
+	/* In dieser Klasse werden die erforderlichen Templates zum Verwalten bzw. Steuerung der Services bereitgestellt.
+	 * 
+		 * 
+		 * * Ein Template mit allen benötigten Informationen wurde für jeden einzelnen Service vorbereitet, 
+		 * damit die externen Methoden getServiceStatus, stopService und startSerivce aufgerufen werden können.
+		 */
 	
-
+	/* Im folgendne Template sind die benötigten Consolebefehle zur Kontrolle und Steuern des Login-Gateway vorhanden.
+	 * Die Struktur des Templates ServiceDefinition muss mit der dargestellen Struktur in der Lib_ServiceManagement
+	 * aus dem ServiceMgmt-Plugin für diesen Datentyp übereinstimmen. Da zum Starten bzw. zum Stoppen der Services bestimmte Command-Befehle
+	 * über SSH-Verbindung ausgeführen werden müssen, wird hier eine Hilfs-Bibliothek mit dem Namen Jcraft verwendet.
+	 * Dadurch wird es im Java-Programm ermöglicht, Befehle in der Kommandozeile auf dem Webserver durchzuführen.
+	 *  Damit ein Service über SSH gesteuert werden kann, sind die folgenden Infos für den Aufbau der Verbindung wichtig:
+	 * 1) Protokollname  2) Hostname   3) User   4) Authentifizierung über SSH-Key oder über Kennwort  
+	 * 5) Die Kommand-Befehle, die durchgeführt werden.
+	 */
+	
+		
 	template ServiceDefinition LoginGW := {
 		protocol := "ssh2",
 		hostname := "solv116",

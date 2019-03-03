@@ -5,16 +5,24 @@ module Kommunikation_Services {
 		import from Lib_ServiceManagement all;
 		import from Templates_Ausfallszeanrien all;
 
-		
+	/* ** Wichtig: um die Testfälle starten zu können, muss eine direkte Verbindung oder eine VPN-Verbindung mit dem entsprechenden Server geben,
+			 * weil, die die Post-Requests auch einen lokalen Server im Unternehmen zugreifen. Die Ausfallszenarien der Services
+			 * brauchen diese Verbindung, damit sie über SSH-Session laufen können, was an sich im Hintergrund passiert.
+			 */
 
-	
+
+	/*Bei diesem Testfall wird der Status aller Services abgefragt. 
+	 * Sollten alle Serivces erreichbar sein, wird der Test erfolgreich abgeschlossen.
+	*/
         
 			testcase status_services() runs on RESTComponent {
 					var charstring serviceStat_logingateway := getServiceStatus(LoginGW);
 					var charstring serviceStat_authservice := getServiceStatus(Authservice);
 					var charstring serviceStat_userservice := getServiceStatus(Userservice);
 					const charstring antwort:= "Running";
-		
+					timer t_Delay := 5.0; 
+					t_Delay.start;
+					t_Delay.timeout;
 					log("LoginGateway is " & serviceStat_logingateway);
 					log("AuthService is " & serviceStat_authservice);
 					log("UserService is " & serviceStat_userservice);
@@ -29,6 +37,13 @@ module Kommunikation_Services {
 
 				
 				}
+				
+				/* 	im nächsten Testfall:
+				 * 	handelt es sich um Timeout vom Login-Gateway,
+					wenn er nicht zu erreichen ist. Falls das Login-Gateway nicht erreichbar ist, kommt es
+					dann zu einem Timeout und es wird kein Response mit einem entsprechenden HTTPStatuscode
+					zurückkommen, da kein Endpoint angesprochen werden kann.
+				 */
 		   
 	testcase test_RESTPost_LoginGateway_ausfall_loginGateway() runs on RESTComponent system LoginRestService {
 									log("Das LoginGateway is " & getServiceStatus(LoginGW));
@@ -66,7 +81,17 @@ module Kommunikation_Services {
 									log(startService(LoginGW));
 								}
 								
-		
+		/*
+		 * 	Im nächsten wird validiert, dass das Zusammenspiel beim Ausfall vom Userservice nicht
+			funktioniert. Beim Beginn des Tests wird 90 Sekunden gewartet, bis zur das Login-Gateway
+			wieder lebt, da er im vorherigen Testfall gestoppt war. Als nächstes wird ein Request
+			ans Login-Gateway gesendet und zwar mit positver Erwartung, dass ein Reponse mit
+			HTTP-Statuscode 200 zurückkommt. Danach wird der Userservice gestoppt und dann
+			wird direkt ein zweites Request an das Login-Gateway geschickt und dieses Mal mit der
+			Erwartung eines HTTP-Statuscodes 500, da der Userservice nicht erreichbar ist. Das soll
+			dann bedeuten, dass die Kommunikation bei einem Ausfall von einem oder mehreren
+			Services fehlschlägt und als Folge dessen das Zusammenspiel der Services scheitert.
+		 */
 		testcase test_RESTPost_LoginGateway_kommunikation_user() runs on RESTComponent system LoginRestService {
 			
 					map(mtc:p, system:s) param (config(AUTHORIZATION));
@@ -132,6 +157,7 @@ module Kommunikation_Services {
 				}
 			
 			
+		// im Analog zum oberen Testfall läuft der gleiche Prozess aber dieses Mal für Authservice
 		
 	testcase test_RESTPost_LoginGateway_kommunikation_auth() runs on RESTComponent system LoginRestService {
 				timer t_Delay := 90.0; 
@@ -195,7 +221,15 @@ module Kommunikation_Services {
 								}
 								log(startService(Authservice));
 			}
-		
+			
+		/*  Im nächsten Testfall erweitert sich das Szenario um einen zweiten Service,
+		    indem Authservice und Userservice gestoppt werden. Dabei wird erwartet, dass beim
+			zweiten Request ein Reponse mit HTTP-Statuscode 500 zurückkommt. Der Statuscode
+			500 kommt aus der Tatsache, dass mindestens ein Service nicht erreichbar ist und das
+			reicht, um einen internen Serverfehler bei der Kommunikation zu geben. 500 als Statscode
+			bedeutet wiederum, dass das Login nicht möglich war.
+		 *    
+		 */
 	testcase test_RESTPost_LoginGateway_kommunikation_auth_user() runs on RESTComponent system LoginRestService {
 			
 							map(mtc:p, system:s) param (config(AUTHORIZATION));

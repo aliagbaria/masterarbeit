@@ -2,6 +2,12 @@ module UserIdService {
 	import from Lib_Http all;
 	import from Lib_JSON all;
 
+/* Für die Kommunikation mit Webservices über HTTP-REST wurde RJ-Plugin verwendet.
+ * Um ein Post-Request auszulösen, sind die folgenden Daten wichig.
+ * 1) Url
+ * 2) Was wird im Body beim Post geschickt
+ * 
+ */
 	const charstring BASE_URL := "http://solv116.hypoport.local:8089";
 	const charstring BASE_URL_userservice := "http://solv116.hypoport.local:8086";
 	const charstring BASE_URL_authservice := "http://solv116.hypoport.local:8085";
@@ -39,9 +45,11 @@ module UserIdService {
 				encode (body) "body/JSON"
 			}
 
+// Dieses Template wird beim Post-Request im Body verschickt.
 	template Login loginRequest := {
 		body := { "admin@mywowi.de", "mywowi"}
 	}
+	// Fehlerhafte Login-Daten im Template, um die Integration bei solchen Fällen zu testen.
 	template Login loginRequest_invalid_user := {
 			body := { "invalid@mywowi.de", "mywowi"}
 		}

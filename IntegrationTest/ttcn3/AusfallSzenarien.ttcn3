@@ -8,20 +8,29 @@ module AusfallSzenarien {
 	import from Lib_ServiceManagement all;
 	import from Templates_Ausfallszeanrien all;
 
-		
+	/* ** Wichtig: um die Testfälle starten zu können, muss eine direkte Verbindung oder eine VPN-Verbindung mit dem entsprechenden Server geben,
+			 * weil, die die Post-Requests auf einen lokalen Server im Unternehmen zugreifen. Die Ausfallszenarien der Services
+			 * brauchen diese Verbindung, damit sie über SSH-Session laufen können, was an sich im Hintergrund passiert.
+			 */
 
+        /*Bei diesem Testfall wird der Status aller Services abgefragt. 
+         * Sollten alle Serivces erreichbar sein, wird der Test erfolgreich abgeschlossen.
+		*/
         
 		testcase status_services() runs on RESTComponent {
+			
+				// Dabei wird die externe Methode getServiceStatus aufgerufen, um den Status der Services abzufragen.		
 				var charstring serviceStat_logingateway := getServiceStatus(LoginGW);
 				var charstring serviceStat_authservice := getServiceStatus(Authservice);
 				var charstring serviceStat_userservice := getServiceStatus(Userservice);
 				const charstring antwort:= "Running";
-		
+				timer t_Delay := 5.0; 
+				t_Delay.start;
+				t_Delay.timeout;
 				log("LoginGateway is " & serviceStat_logingateway);
 				log("AuthService is " & serviceStat_authservice);
 				log("UserService is " & serviceStat_userservice);
 				
-
 				if (serviceStat_logingateway == antwort and serviceStat_authservice== antwort and serviceStat_userservice== antwort) {
 					setverdict(pass);
 					stop;
@@ -34,11 +43,16 @@ module AusfallSzenarien {
 		   
 	
 		
-						
-		
-						
-	
-	
+	/*Bei diesem Testfall wird die Integration beim Ausfall des Userservices
+	getestet. Dabei wird zuerst der Status des Userservices abgefragt. Danach wird eine
+	Anfrage an das Login-Gateway geschickt und es wird erwartet, dass ein Reponse mit
+	HTTP-Statuscode 200 zurückkommt. Danach wird der Userservice kurz gestoppt und
+	dann wieder gestartet. Anschließend wird ein Timer für 90 Sekunden gestartet, bis der
+	Service wieder da und verfügbar ist. Nachdem die 80 Sekunden durch sind, wird eine
+	neue und zweite Anfrage an das Login-Gateway geschickt. Zum Schluss wird erwartet,
+	dass nochmal ein Reponse HTTP-Statuscode 200 zurückkommt und das Zusammenspiel
+	wieder funktioniert. Dadurch
+	*/
 		
 		testcase test_RESTPost_LoginGateway_wiederkommen_userservice() runs on RESTComponent system LoginRestService {
 								log("Der Userservice is " & getServiceStatus(Userservice));
@@ -72,7 +86,7 @@ module AusfallSzenarien {
 								log(stopService(Userservice));
 								log("Der Userservice is " & getServiceStatus(Userservice));
 								log(startService(Userservice));
-								timer t_Delay := 80.0; 
+								timer t_Delay := 90.0; 
 								t_Delay.start;
 							    t_Delay.timeout;
 								p.send(loginRequest);
@@ -101,7 +115,8 @@ module AusfallSzenarien {
 								
 								
 							}
-							
+					
+					//im Anloag zu dem oberen Testfall wird der gleiche Prozess für Authservice laufen		
 		
 	testcase test_RESTPost_LoginGateway_wiederkommen_authervice() runs on RESTComponent system LoginRestService {
 									log("Der Authservice is " & getServiceStatus(Authservice));
@@ -136,7 +151,7 @@ module AusfallSzenarien {
 									log(stopService(Authservice));
 									log("Der Authservice is " & getServiceStatus(Authservice));
 									log(startService(Authservice));
-									timer t_Delay := 80.0; 
+									timer t_Delay := 90.0; 
 									t_Delay.start;
 									t_Delay.timeout;
 									p.send(loginRequest);
@@ -168,7 +183,12 @@ module AusfallSzenarien {
 							
 		
 		
-		
+		/*  Der gleiche Prozess wird dieses Mal für die beiden Serivce(Authservice und Userservice) durchgeführt.
+		 * 	Hier wird sichgestellt, dass das Zusammenspiel vor diesem Ausfallszenario funktioniert und ein
+			Response mit HTTP-Statuscode 200 zurückkommt. Danach werden die beiden Services
+			gestartet und ein Timer für 90 Sekunden gesetzt. Es wird am Ende erwartet, dass das
+			Zusammenspiel wieder funktioniert, nachdem die beiden Services wieder erreichbar sind.
+		 */
 	testcase test_RESTPost_LoginGateway_wiederkommen_auth_user_back() runs on RESTComponent system LoginRestService {
 			
 								map(mtc:p, system:s) param (config(AUTHORIZATION));
