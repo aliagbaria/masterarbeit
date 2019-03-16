@@ -4,7 +4,7 @@ module Templates_Ausfallszeanrien {
 		import from Lib_ServiceManagement all;
 		const charstring fileName := "H:\\ssh/id_rsa";
 	
-		/* ** Wichtig: um die Testfälle muss eine direkte Verbindung oder eine VPN-Verbindung mit dem entsprechenden Server geben,
+		/* ** Wichtig: um die Testfälle starten zu können, muss eine direkte Verbindung oder eine VPN-Verbindung mit dem entsprechenden Server geben,
 		 * weil, die die Post-Requests auch einen lokalen Server im Unternehmen zugreifen. Die Ausfallszenarien der Services
 		 * brauchen diese Verbindung, damit sie über SSH-Session laufen können, was an sich im Hintergrund passiert.
 		 */
